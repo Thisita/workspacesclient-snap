@@ -54,11 +54,11 @@ slots:
     bus: session
     name: com.amazon.workspacesclient
 
-#layout:
-#  /usr/lib/$SNAPCRAFT_ARCH_TRIPLET/pcoip-client:
-#    bind: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/pcoip-client
-#  /usr/lib/$SNAPCRAFT_ARCH_TRIPLET/workspacesclient:
-#    bind: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/workspacesclient
+layout:
+  /usr/lib/$SNAPCRAFT_ARCH_TRIPLET/pcoip-client:
+    bind: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/pcoip-client
+  /usr/lib/$SNAPCRAFT_ARCH_TRIPLET/workspacesclient:
+    bind: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/workspacesclient
 
 apps:
   workspacesclient:
