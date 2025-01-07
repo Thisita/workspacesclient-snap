@@ -1,0 +1,6 @@
+#!/bin/sh
+# This is required because getting actual lsb_release requires
+# apt, apt-utils, and debconf only to print 'Release:\t20\n'
+# which the strict parsing in workspacesclient requires to be
+# 'Release:\t20.04\n'.
+printf 'Release:\t20.04\n'

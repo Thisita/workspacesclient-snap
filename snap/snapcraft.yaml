@@ -1,0 +1,97 @@
+name: workspacesclient # you probably want to 'snapcraft register <name>'
+base: core20 # the base snap is the execution environment for this snap
+summary: Client for Amazon WorkSpaces # 79 char long summary
+description: |
+  Client for Amazon WorkSpaces - a managed, secure Desktop-as-a-Service (DaaS) solution.
+
+  NOTE: This wrapper is not verified by, affiliated with, or supported by Amazon.com, Inc. This snap will be de-listed if/when Amazon decide to distribute
+  an official Workspaces client snap.
+
+adopt-info: workspacesclient
+grade: stable # must be 'stable' to release into candidate/stable channels
+confinement: strict # use 'strict' once you have the right plugs and slots
+compression: lzo
+
+architectures:
+  - build-on: amd64
+    run-on: amd64
+
+parts:
+  workspacesclient:
+    plugin: dump
+    build-packages:
+      - jq
+    stage-packages:
+      - libgraphicsmagick++-q16-12
+      - libgtk2.0-bin
+      - libhiredis0.14
+      - libsoup2.4-1
+      - libva-drm2
+      - libva-x11-2
+      - libva2
+      - libvdpau1
+      - libgtk-3-0
+      - liblttng-ust0 # Unlisted link dep
+      - libusb-1.0-0 # Unlisted link dep
+      - libxcb-util1 # Unlisted link dep
+      - libxcb-res0 # Unlisted link dep
+    source: https://d3nt0h4h6pmmc4.cloudfront.net/new_workspacesclient_focal_amd64.deb
+    source-type: deb
+    override-build: |
+      snapcraftctl build
+      sed -i 's|Icon=com.amazon.workspacesclient|Icon=/usr/share/icons/hicolor/256x256/apps/com.amazon.workspacesclient.png|g' $SNAPCRAFT_PART_INSTALL/usr/share/applications/com.amazon.workspacesclient.desktop
+      VERSION=$(cat $SNAPCRAFT_PART_BUILD/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/workspacesclient/pcoip/appsettings.json | jq .ProductVersion | tr -d '"')
+      snapcraftctl set-version $VERSION
+
+  local-parts:
+    plugin: dump
+    source: ./snap/local
+    source-type: local
+
+slots:
+  dbus-daemon:
+    interface: dbus
+    bus: session
+    name: com.amazon.workspacesclient
+
+#layout:
+#  /usr/lib/$SNAPCRAFT_ARCH_TRIPLET/pcoip-client:
+#    bind: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/pcoip-client
+#  /usr/lib/$SNAPCRAFT_ARCH_TRIPLET/workspacesclient:
+#    bind: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/workspacesclient
+
+apps:
+  workspacesclient:
+    extensions: [gnome-3-38]
+    command: usr/bin/workspacesclient
+    desktop: usr/share/applications/com.amazon.workspacesclient.desktop
+    common-id: com.amazon.workspacesclient
+    plugs:
+      - shmem
+      - desktop
+      - desktop-legacy
+      - gsettings
+      - hardware-observe # suggest: snappy-debug
+      - home # to save registrations
+      - login-session-observe # for autolock
+      - network # for network access
+      - network-observe # for network status observing
+      - network-status # required to detect proxy settings
+      - opengl # hardware acceleration
+      - process-control # suggest: snappy-debug
+      - system-observe # suggest: snappy-debug
+      - audio-playback
+      - audio-record
+      - removable-media
+      - screen-inhibit-control # prevent loss focus locks
+      - unity7
+      - wayland
+      - x11
+      - camera
+    slots:
+      - dbus-daemon
+
+plugs:
+  shmem:
+    interface: shared-memory
+    private: true
